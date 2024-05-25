@@ -6,3 +6,6 @@ BFI_2_test:
 gsheet_editable_link:
 
 https://docs.google.com/spreadsheets/d/1Yi_xPdR-ioa9HpkYFU7lW4bcarz3OZahH-91xMiXbJI/edit?resourcekey#gid=1369162105
+
+youtube:
+https://youtu.be/LI1NJj2w43g?si=IsILCAootG9nu2oF
