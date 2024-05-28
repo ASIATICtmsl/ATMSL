@@ -28,7 +28,6 @@ def scrape_job_page(job_url):
             return job_title, []
 
         requirements = [li.get_text(strip=True) for li in requirements_list.find_all('li')]
-        #print(f"{job_title} \n{requirements}\n----------------------------------------------")
         return job_title, requirements
     
     except requests.RequestException as e:
@@ -39,54 +38,43 @@ def scrape_job_page(job_url):
 def main():
     try:
         url = f"{base_url}/job-descriptions/"
-        #print(url)
         response = requests.get(url)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Find all job links
-        job_links = soup.find_all('a', class_='base-sm', href=True)
-        job_depts = soup.find_all('h5')
-        print("open job link")
+        # Containers for job links and departments
         jobs = []
-        
-        #count = 1
+        current_department = None
 
-        for job_link, job_dept in zip(job_links, job_depts):
-            job_url = job_link['href']
-            department = job_dept.get_text(strip=True)
-            #print(count)
-            #count = count+1
-            if not job_url.startswith('http'):
-                job_url = base_url + job_url
-            job_title, requirements = scrape_job_page(job_url)
-            if job_title:
-                print(department)
-                print(job_title)
-                print(requirements)
-                print('----------------------------------------\n\n')
-                jobs.append({'department': department,'title': job_title, 'requirements': requirements})
+        # Iterate over all elements
+        for element in soup.find_all(['h5', 'a']):
+            if element.name == 'h5':  # This is a department heading
+                current_department = element.get_text(strip=True)
+            elif element.name == 'a' and current_department:  # This is a job link under the current department
+                if 'base-sm' in element.get('class', []):  # Only process <a> tags with the 'base-sm' class
+                    job_url = element['href']
+                    if not job_url.startswith('http'):
+                        job_url = base_url + job_url
+                    job_title, requirements = scrape_job_page(job_url)
+                    if job_title:
+                        # print(current_department)
+                        # print(job_title)
+                        # print(requirements)
+                        #print('----------------------------------------\n\n')
+                        jobs.append({
+                            'department': current_department,
+                            'title': job_title,
+                            'requirements': requirements
+                        })
 
         # Save results to CSV
-        with open('job_descriptions.csv', 'w', newline='') as file:
+        with open('job_descriptions_with dept.csv', 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Department','Job Title', 'Requirements'])
+            writer.writerow(['Department', 'Job Title', 'Requirements'])
             
             for job in jobs:
-                writer.writerow([job['department'], job['title'], ';\n '.join(job['requirements'])])
+                writer.writerow([job['department'], job['title'], '; '.join(job['requirements'])])
 
-
-        # # Print the results
-        # if not jobs:
-        #     print("No jobs found on the main page.")
-        # else:
-        #     for job in jobs:
-        #         print(f"Job Title: {job['title']}")
-        #         print("Requirements:")
-        #         for req in job['requirements']:
-        #             print(f"- {req}")
-        #         print("\n")
-    
     except requests.RequestException as e:
         print(f"Error fetching the main page: {e}")
 
