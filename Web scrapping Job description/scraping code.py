@@ -47,7 +47,7 @@ def main():
         # Find all job links
         job_links = soup.find_all('a', class_='base-sm', href=True)
         job_depts = soup.find_all('h5')
-        print("open job link")
+        # print("open job link")
         jobs = []
         
         #count = 1
@@ -61,10 +61,10 @@ def main():
                 job_url = base_url + job_url
             job_title, requirements = scrape_job_page(job_url)
             if job_title:
-                print(department)
-                print(job_title)
-                print(requirements)
-                print('----------------------------------------\n\n')
+                # print(department)
+                # print(job_title)
+                # print(requirements)
+                # print('----------------------------------------\n\n')
                 jobs.append({'department': department,'title': job_title, 'requirements': requirements})
 
         # Save results to CSV
